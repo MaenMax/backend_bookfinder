@@ -1,85 +1,180 @@
 # Backend Developer Project: Book Information Service
 
-This project is designed to test your ability to design, implement, and document a backend service for storing and retrieving book information.
+This project create a backend service that provides CRUD operations for book information. The project creates two sets of APIs:
 
----
+RESTful APIs:
+----
+-  POST      ```/books```
+-  PUT       ```/books/{id}```
+-  GET       ```/books/```
+-  GET       ```/books/{id}```
+-  DELETE    ```/books/{id}```
+
+
+GraphQL APIs:
+----
+- POST    ```/books-graphql```
+
+Those two APIs will run on localhost port ```8080```
+
 
 ### Table of Contents
 
-1. [Project Description](#project-description)
-2. [Requirements](#requirements)
-3. [Getting Started](#getting-started)
+1. [Installing Golang](#installing-golang)
+2. [Building the project](#building-project)
+3. [Running the system](#running-the-system)
 4. [API Documentation](#api-documentation)
-5. [Evaluation Criteria](#evaluation-criteria)
-6. [Submission Guidelines](#submission-guidelines)
+5. [Examples](#examples)
 
----
+### Installing Golang
+Before building/running the server, you will need to install Golang on your machine. For more information on how to install it on Linux/Mac/Windows, please visit: https://go.dev/doc/install
 
-### Project Description
 
-Your task is to create a backend service that provides CRUD operations for book information. The core data model should contain:
-- Title
-- Author
-- Date Published
-- Book Cover Image
+### Building Project
+To build the project (generate the Microservice binary), go the home directory of the repo/projct and run:
 
----
+```bash
+$ go mod vendor
+```
 
-### Requirements
+```bash
+$ make
+```
+To generate a tar.bz2 file for deployment, run:
+```bash
+$ make deploy
+```
+To create a docker image, run:
+```bash
+$ make docker
+```
+To delete the generated file (binaries, docker, tar.bz2):
+```bash
+$ make clean
+```
 
-1. **Language:** You are free to use your preferred backend language/framework for this project.
-2. **API Design:** You can choose between REST or GraphQL (Choosing GraphQL will give you extra credit ;-)).
-3. **Data Storage:** 
-   - For the purpose of this project, an in-memory store can be used.
-   - The design should be adaptable to support various database backends in the future.
 
----
+### Running the system
 
-### Getting Started
+The generated binary will be stored in $HOME/bin/book_finder, where $HOME is the home directory of the repo/project
 
-1. Fork this repository.
-2. Set up your development environment.
-3. Begin development. Remember to focus on quality, readability, and maintainability.
-4. Once done, create PR.  Make sure you update this README with instructions on how to run and test your project.
+To run it from command line (Mac and Linux):
+```bash
+$ ./bin/book_finder
+```
+The process will start and the following logs will show:
 
----
+```
+GraphQL server is running on :8080/books-graphql
+RESTful server is running on :8080/books
+```
+
+
 
 ### API Documentation
 
-After implementing your API, please provide a brief documentation here or provide a link or file to a generated documentation (e.g., Swagger).
+API documentation can be found in $home/swagger.yaml, where $HOME is the home directory of the repo/project
 
-#### Example:
 
-**Endpoint:** `/books`
 
-**Method:** `GET`
+### Examples
 
-**Description:** Retrieves a list of all books in the database.
+For a server running on localhost:8080
 
----
+#### RESTful requests
 
-### Evaluation Criteria
+##### Create a new book
+```
+POST http://localhost:8080/books
+{
+  "title": "Book title",
+  "author": "Author",
+  "date_published": "2023-10-15",
+  "book_cover_url": "https://example.com/new-book-cover.jpg"
+}
+```
 
-Your submission will be judged based on the following criteria:
+##### Update existing book
+```
+PUT http://localhost:8080/books/1
+{
+  "title": "Updated Title",
+  "author": "Author updated",
+  "date_published": "2023-11-01",
+  "book_cover_url": "https://example.com/updated-cover.jpg"
+}
+```
+##### Delete Book
+```
+DELETE http://localhost:8080/books/1
+{
+  "title": "Book title",
+  "author": "Author",
+  "date_published": "2023-10-15",
+  "book_cover_url": "https://example.com/new-book-cover.jpg"
+}
+```
+##### Get Book by its ID
+```
+GET http://localhost:8080/books/1
+```
+##### Get All Books
+```
+GET http://localhost:8080/books
+```
 
-1. **Functionality:** Does the application do what was asked?
-2. **Code Quality:** Is the code readable, maintainable, and modular?
-3. **API Design:** How well is the API designed? Is it intuitive and user-friendly?
-4. **Data Modeling:** Is the book information well structured? Is the design scalable?
-5. **Adaptability:** How easy is it to switch to a different database backend in the future?
-6. **Error Handling:** How well does your application handle potential errors?
-7. **Documentation:** Is the API well-documented?
-8. **Extra Credit:** Implementation of GraphQL.
 
----
+#### GraphQL requests
 
-### Submission Guidelines
+##### Create a new book
+```
+POST http://localhost:8080//books-graphql
+{
+  "query": "mutation($title: String!, $author: String!, $datePublished: String!, $bookCoverURL: String!) { createBook(Title: $title, Author: $author, DatePublished: $datePublished, BookCoverURL: $bookCoverURL) { ID, Title, Author, DatePublished, BookCoverURL } }",
+  "variables": {
+    "title": "Title",
+    "author": "Maen Abu Hammour",
+    "datePublished": "09/15/2023",
+    "bookCoverURL": "https://example.com/book-cover.jpg"
+  }
+}
+```
 
-1. Ensure your code is committed to your local branch.
-2. Update the README (this file) with any necessary instructions for running and testing your solution.
-3. Create a Pull Request to the `main` branch.
-4. In your Pull Request, provide a brief overview of your approach and any design decisions you made.
-
----
-
-We look forward to reviewing your solution! Best of luck!
+##### Update existing book
+```
+POST http://localhost:8080/books-graphql
+{
+  "query": "mutation ($ID: Int!, $Title: String, $Author: String, $DatePublished: String, $BookCoverURL: String) { updateBook(ID: $ID, Title: $Title, Author: $Author, DatePublished: $DatePublished, BookCoverURL: $BookCoverURL) { ID, Title, Author, DatePublished, BookCoverURL } }",
+  "variables": {
+    "ID": 1,  // Replace with the actual ID of the book you want to update
+    "Title": "Updated Title",
+    "Author": "Updated Author",
+    "DatePublished": "2023-10-01",
+    "BookCoverURL": "https://example.com/updated-cover.jpg"
+  }
+}
+```
+##### Delete Book
+```
+POST http://localhost:8080/books-graphql
+{
+  "query": "mutation ($ID: Int!) { deleteBook(ID: $ID) { ID, Title, Author, DatePublished, BookCoverURL } }",
+  "variables": {
+    "ID": 1  // Replace with the actual ID of the book you want to delete
+  }
+}
+```
+##### Get Book by its ID
+```
+POST http://localhost:8080/books-graphql
+{
+  "query": "query ($ID: Int!) { book(id: $ID) { ID, Title, Author, DatePublished, BookCoverURL } }",
+  "variables": {
+    "ID": 1
+  }
+}
+```
+##### Get All Books
+```
+POST http://localhost:8080/books-graphql
+```
